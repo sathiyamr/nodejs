@@ -5,19 +5,111 @@ const User = require("./models/user");
 
 const app = express();
 
-app.post("/signup", async (req, resp) => {
-  const userModel = new User({
-    firstName: "Pranav",
-    lastName: "S",
-    emailId: "ps@sm.com",
-    password: "123456",
-    age: "36",
-    gender: "M",
-  });
+app.use(express.json());
 
-  await userModel.save();
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return res.status(400).json({
+      error: "Invalid JSON payload",
+    });
+  }
 
-  resp.send("User Added Successfully !!!!!");
+  // 👉 You call next(err) so that errors you are NOT handling here can be handled elsewhere
+  // 👉 If you don’t call it, those errors are silently swallowed
+
+  next(err);
+});
+
+app.post("/signup", async (req, res) => {
+  const userModel = new User(req.body);
+
+  try {
+    await userModel.save();
+
+    res.send("User Added Successfully !!!!!");
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.get("/user", async (req, res) => {
+  try {
+    const userInfo = await User.find({ emailId: req.body.emailId });
+    if (userInfo.length === 0) {
+      res.status(404).send("user not found");
+      return;
+    }
+    res.send(userInfo);
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.get("/user/one", async (req, res) => {
+  try {
+    const userInfo = await User.findOne({ emailId: req.body.emailId });
+    if (!userInfo) {
+      res.status(404).send("user not found");
+      return;
+    }
+    res.send(userInfo);
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.get("/user/id", async (req, res) => {
+  try {
+    const userInfo = await User.findById(req.body.id);
+    if (!userInfo) {
+      res.status(404).send("user id not found");
+      return;
+    }
+    res.send(userInfo);
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.delete("/user/id", async (req, res) => {
+  try {
+    const userInfo = await User.findByIdAndDelete(req.body.id);
+    if (!userInfo) {
+      res.status(404).send("user id not found");
+      return;
+    }
+    res.send("User deleted successfully!!!");
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.patch("/user/id", async (req, res) => {
+  try {
+    const userInfo = await User.findByIdAndUpdate(req.body.id, req.body, {
+      returnDocument: "after",
+    });
+    if (!userInfo) {
+      res.status(404).send("user id not found");
+      return;
+    }
+    res.send("User Updated successfully!!!"+ userInfo);
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
+});
+
+app.get("/feed", async (req, res) => {
+  try {
+    const userInfo = await User.find({});
+    if (userInfo.length === 0) {
+      res.status(404).send("user not found");
+      return;
+    }
+    res.send(userInfo);
+  } catch (err) {
+    res.status(400).send("Bad Request !!!!", err.message);
+  }
 });
 
 connectDB()
