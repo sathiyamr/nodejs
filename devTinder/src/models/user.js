@@ -17,12 +17,26 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: String,
-    lastName: String,
-    emailId: String,
-    password: String,
-    age: Number,
-    gender: String,
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    emailId: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    password: {
+      type: String,
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+    },
   },
   { collection: "User" }
 );
