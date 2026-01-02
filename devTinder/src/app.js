@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 // const { adminAuth, userAuth } = require("./middlewares/auth");
@@ -21,12 +22,43 @@ app.use((err, req, res, next) => {
 });
 
 app.post("/signup", async (req, res) => {
-  const userModel = new User(req.body);
-
   try {
+    const pwd = req.body.password;
+
+    if (!pwd) {
+      throw new Error("Password field cannot be empty");
+    }
+
+    const encryptedPwd = await bcrypt.hash(pwd, 10);
+    const userModel = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      emailId: req.body.emailId,
+      password: encryptedPwd,
+    });
+
     await userModel.save();
 
     res.send("User Added Successfully !!!!!");
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const emailId = req.body.emailId;
+    const pwd  = req.body.password;
+    const userInfo = await User.findOne({ emailId: emailId });
+    if (!userInfo) {
+      throw new Error("Invalid Credentials");
+    }
+    const isValid = await bcrypt.compare(pwd, userInfo.password);
+    if (!isValid) {
+      throw new Error("Invalid Credentials");
+
+    }
+    res.send(userInfo);
   } catch (err) {
     res.status(400).send(err.message);
   }
@@ -97,7 +129,7 @@ app.patch("/user/:userId", async (req, res) => {
     if (!isValid) {
       // res.status(404).send("One or more fields are not allowed to be updated.");
       // return;
-      throw new Error("One or more fields are not allowed to be updated.")
+      throw new Error("One or more fields are not allowed to be updated.");
     }
     const userInfo = await User.findByIdAndUpdate(userId, req.body, {
       returnDocument: "after",

@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      maxLength: 50,
+      maxLength: 100,
       validate: {
         validator: function (v) {
           return validator.isStrongPassword(v);
@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       maxLength: 225,
       default:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzBpnouxDuF063trW5gZOyXtyuQaExCQVMYA&s",
+        "https://picsum.photos/id/237/200/300",
       validate: {
         validator: function (v) {
           return validator.isURL(v);
