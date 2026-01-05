@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
 
 // Schema sample from the documentation
 
@@ -71,8 +74,7 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       maxLength: 225,
-      default:
-        "https://picsum.photos/id/237/200/300",
+      default: "https://picsum.photos/id/237/200/300",
       validate: {
         validator: function (v) {
           return validator.isURL(v);
@@ -99,6 +101,19 @@ const userSchema = new mongoose.Schema(
   { collection: "User", timestamps: true }
 );
 
-// const userModel = mongoose.model('User', userSchema);
+userSchema.methods.getJWT = async function () {
+  const userInfo = this;
+  const jwtToken = jwt.sign({ _id: userInfo._id }, "DEV@Tinder$790", {
+    expiresIn: "1d",
+  });
+  return jwtToken;
+};
+
+userSchema.methods.validatePassword = async function (userTypePassword) {
+  const userInfo = this;
+  const hashedPassword = userInfo.password;
+  const isValid = await bcrypt.compare(userTypePassword, hashedPassword);
+  return isValid;
+};
 
 module.exports = mongoose.model("User", userSchema);
