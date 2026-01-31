@@ -19,10 +19,10 @@ app.use("/", authRouter, profileRouter, requestRouter, userRouter);
 connectDB()
   .then(() => {
     console.log("DB connection established");
-    app.listen(3000, () => {
-      console.log("My app server is listening port number 3000.....");
+    app.listen(7777, () => {
+      console.log("My app server is listening port number 7777.....");
     });
   })
-  .catch(() => {
-    console.log("DB cannot be connected!!!!");
+  .catch((err) => {
+    console.log("DB cannot be connected!!!!", err);
   });
