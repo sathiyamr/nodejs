@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const apiBasePath = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [email, setEmail] = useState("rajasri@gmail.com");
   const [password, setPassword] = useState("18R@j@sri");
@@ -17,7 +18,7 @@ const Login = () => {
     };
 
     const api = axios.create({
-      baseURL: "http://localhost:3000", // your backend URL
+      baseURL: apiBasePath, // your backend URL
       withCredentials: true, // if using cookies
       timeout: 10000,
       headers: {
