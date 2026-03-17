@@ -5,7 +5,6 @@ const connectDB = async () => {
     "mongodb+srv://sathiyamoorthy22_db_user:fLTiJFSF4wdjBWDH@cluster0.uxlapbd.mongodb.net/devTinder?appName=Cluster0"
   );
 };
-
 module.exports = connectDB;
 
 // connectDB()

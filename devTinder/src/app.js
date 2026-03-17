@@ -5,9 +5,10 @@ const authRouter = require("./router/auth");
 const profileRouter = require("./router/profile");
 const requestRouter = require("./router/request");
 const userRouter = require("./router/user");
+
 var cors = require("cors");
 require("dotenv").config()
-
+require("./utils/cronjob");
 const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_ORIGIN, credentials: true }));
