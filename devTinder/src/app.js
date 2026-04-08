@@ -6,8 +6,11 @@ const profileRouter = require("./router/profile");
 const requestRouter = require("./router/request");
 const userRouter = require("./router/user");
 
+const errorHandler = require("./middlewares/errorHandler");
+const AppError = require("./utils/appError");
+
 var cors = require("cors");
-require("dotenv").config()
+require("dotenv").config();
 require("./utils/cronjob");
 const app = express();
 
@@ -16,7 +19,24 @@ app.use(cors({ origin: process.env.FRONTEND_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+
+
 app.use("/", authRouter, profileRouter, requestRouter, userRouter);
+
+app.get("/test-error", (req, res, next) => {
+  throw new Error("Manual test error");
+});
+
+// app.use((req, res) => {
+//   res.status(404).json({ message: "Route not found" });
+// });
+
+app.use((req, res, next) => {
+  next(new AppError("Route not found", 404));
+});
+
+
+app.use(errorHandler);
 
 connectDB()
   .then(() => {

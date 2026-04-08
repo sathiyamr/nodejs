@@ -4,6 +4,9 @@ const User = require("../models/user");
 
 const authRouter = express.Router();
 
+const asyncHandler = require("../utils/asyncHandler");
+const AppError = require("../utils/appError");
+
 authRouter.post("/signup", async (req, res) => {
   try {
     const pwd = req.body.password;
@@ -28,25 +31,33 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
-authRouter.post("/login", async (req, res) => {
-  try {
-    const emailId = req.body.emailId;
-    const pwd = req.body.password;
-    const userInfo = await User.findOne({ emailId: emailId });
-    if (!userInfo) {
-      throw new Error("Invalid Credentials");
+authRouter.post(
+  "/login",
+  asyncHandler(async (req, res) => {
+    try {
+      const emailId = req.body.emailId;
+      const pwd = req.body.password;
+      const userInfo = await User.findOne({ emailId: emailId });
+      if (!userInfo) {
+        throw new Error("Invalid Credentials");
+        //  throw new AppError("Invalid Credentials", 404);
+
+        // This is operational Error
+      }
+      const isValid = await userInfo.validatePassword(pwd);
+      if (!isValid) {
+        throw new Error("Invalid Credentials");
+        //  throw new AppError("Invalid Credentials", 404);
+      }
+      const jwtToken = await userInfo.getJWT();
+      res.cookie("token", jwtToken);
+      res.send("Logged In Successfully!!!!");
+    } catch (err) {
+      // res.status(400).send("ERRROR:::" + err.message);
+       throw new AppError("ERRROR:::" + err.message, 404);
     }
-    const isValid = await userInfo.validatePassword(pwd);
-    if (!isValid) {
-      throw new Error("Invalid Credentials");
-    }
-    const jwtToken = await userInfo.getJWT();
-    res.cookie("token", jwtToken);
-    res.send("Logged In Successfully!!!!");
-  } catch (err) {
-    res.status(400).send("ERRROR:::" + err.message);
-  }
-});
+  }),
+);
 
 authRouter.post("/logout", async (req, res) => {
   res.cookie("token", "", {
