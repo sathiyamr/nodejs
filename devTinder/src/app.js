@@ -27,6 +27,10 @@ app.get("/test-error", (req, res, next) => {
   throw new Error("Manual test error");
 });
 
+app.use("/check", (req, res, next) => {
+  throw new Error("Manual check error");
+});
+
 // app.use((req, res) => {
 //   res.status(404).json({ message: "Route not found" });
 // });
